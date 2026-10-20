@@ -1,0 +1,12 @@
+# oh-my-claudecode 세션 런타임 상태 (기기·세션마다 달라야 함)
+.omc/
+# 단 HUD 프리셋은 install.sh가 ~/.claude/.omc/로 연결하는 설정이라 올린다
+!claude/.omc/
+
+# 공개 저장소라 올리지 않는 것 (.gitignore는 줄 끝 주석을 지원하지 않으므로 주석은 따로 줄에)
+# 자동 메모리 — 개인 기억(진행 중인 일·회사 관련 메모)
+claude/memory/
+# 공개 전 비공개 저장소(my-claude-settings)의 git 기록 보관본
+.git-private/
+.DS_Store
+__pycache__/

@@ -1,0 +1,8 @@
+{
+  "preset": "minimal",
+  "elements": {
+    "omcLabel": true,
+    "activeSkills": true,
+    "lastSkill": true
+  }
+}

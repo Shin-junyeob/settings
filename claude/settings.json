@@ -1,0 +1,101 @@
+{
+  "model": "opus",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/guard-dangerous-bash.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/guard-sensitive-files.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-test-failure.sh\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/notify-stop.sh\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/check-settings-drift.sh\""
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/statusline-wrapper.sh"
+  },
+  "enabledPlugins": {
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "oh-my-claudecode@omc": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "omc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "tui": "fullscreen",
+  "autoMemoryDirectory": "~/.claude/memory",
+  "theme": "dark",
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "env": {
+    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/sinjun-yeob/Developer/personal/working_place",
+    "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1"
+  },
+  "pluginConfigs": {
+    "pane-tools@inline": {
+      "options": {
+        "launcher": "command",
+        "command": "touch \"$HOME/.claude/pane-tools/mods-slot.signal\" # {cmd}"
+      }
+    }
+  }
+}
