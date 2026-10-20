@@ -153,6 +153,13 @@ def check():
     img[40:45, 10:90] = 255
     img[40:45, 12:88] = 0
     assert split(img, lying=True) is None, "모음이 딸린 아래 조각은 거부해야 함"
+    img[:] = 255
+    img[10:30, 35:65] = 0  # 초성
+    img[45:50, 10:90] = 0  # ㅜ 가로획
+    img[50:70, 48:52] = 0  # ㅜ 세로획
+    first, vowel = split_initial(img)
+    assert (first[10:30] < INK).any() and not (first[45:] < INK).any(), "초성만 위에 남아야 함"
+    assert (vowel[45:50] < INK).any(), "모음 가로획은 아래 조각에"
     print("check ok")
 
 
@@ -161,12 +168,43 @@ def bbox(gray):
     return xs.min(), ys.min(), xs.max(), ys.max()
 
 
+def split_initial(gray):
+    """받침 없는 누운 모음 글자(쭈·츄)를 초성 / 모음으로 나눈다. 못 나누면 None.
+
+    가장 긴 가로획(=모음)보다 위의 빈 줄 중 모음에 가장 가까운 곳에서 자른다.
+    아래 조각이 글자 폭의 60%가 안 되면 모음 가로획을 놓친 것으로 보고 버린다.
+    """
+    ink = gray < INK
+    rows = np.where(ink.any(axis=1))[0]
+    cols = np.where(ink.any(axis=0))[0]
+    width = cols[-1] - cols[0]
+    bar = int(ink.sum(axis=1).argmax())
+    empty = [y for y in range(rows[0], bar) if not ink[y].any()]
+    if not empty:
+        return None
+    hi = empty[-1]
+    lo = hi
+    while lo - 1 in empty:
+        lo -= 1
+    below = np.where(ink[hi + 1:].any(axis=0))[0]
+    if below[-1] - below[0] < 0.6 * width:
+        return None
+    upper, lower = gray.copy(), gray.copy()
+    upper[(lo + hi) // 2:] = 255
+    lower[:(lo + hi) // 2] = 255
+    return upper, lower
+
+
 def parts(ch, gray):
-    return split(gray, lying=group(jamo(ch)[1]) != "v")
+    """받침 있는 글자는 위 / 받침, 받침 없는 누운 모음 글자는 초성 / 모음으로 나눈다."""
+    _, jung, jong = jamo(ch)
+    if jong:
+        return split(gray, lying=group(jung) != "v")
+    return split_initial(gray) if group(jung) == "h" else None
 
 
 def compose(cells, a, b):
-    """a의 윗부분에 b의 받침을, a에 원래 있던 받침 자리(가운데·윗선)에 붙인다."""
+    """a의 윗부분에 b의 아랫부분(받침 또는 모음)을, a에 원래 있던 그 자리(가운데·윗선)에 붙인다."""
     u1, l1 = parts(a, cells[a])
     _, l2 = parts(b, cells[b])
     ax0, ay0, ax1, _ = bbox(l1)
@@ -194,8 +232,18 @@ def compose(cells, a, b):
 def donors(target, cells, splittable):
     cho, jung, jong = jamo(target)
     if jong == 0:
-        return None
-    uppers = [c for c in splittable if jamo(c)[:2] == (cho, jung)]
+        # 받침 없는 누운 모음 글자: 같은 초성 글자의 초성 + 같은 모음 글자의 모음 (쮸 = 쭈의 ㅉ + 츄의 ㅠ)
+        if group(jung) != "h":
+            return None
+        firsts = [c for c in splittable if jamo(c)[0] == cho and jamo(c)[2] == 0]
+        vowels = [c for c in splittable if jamo(c)[1] == jung and jamo(c)[2] == 0]
+        if not firsts or not vowels:
+            return None
+        # 모음 재료는 초성 폭이 비슷한 글자에서 — 모음 가로획 길이가 초성 폭을 따라가므로
+        w = lambda c: np.ptp(np.where((parts(c, cells[c])[0] < INK).any(axis=0))[0])  # noqa: E731
+        return firsts[0], min(vowels, key=lambda c: abs(w(c) - w(firsts[0])))
+    # 윗부분 재료는 받침 있는 글자에서만 — 받침 없는 글자(쭈)는 초성/모음으로 잘려 있어 모음 자리에 받침이 붙는다
+    uppers = [c for c in splittable if jamo(c)[:2] == (cho, jung) and jamo(c)[2]]
     # 받침은 모음이 오른쪽에 서는 글자에서만 뗀다 — 누운 모음 글자는 ㅡ가 받침에 붙어 있으면
     # 받침 조각에 모음이 딸려 온다(흥 → 짧은 ㅡ+ㅇ, 실측)
     lowers = [c for c in splittable if jamo(c)[2] == jong and group(jamo(c)[1]) == "v"]
@@ -211,7 +259,7 @@ def main():
         return check()
     pdf_path, targets = sys.argv[1], sys.argv[2:]
     cells = load_cells(pdf_path)
-    splittable = [c for c, g in cells.items() if jamo(c)[2] and parts(c, g)]
+    splittable = [c for c, g in cells.items() if parts(c, g)]
     print(f"작성된 음절 {len(cells)}자, 받침으로 나뉘는 글자 {len(splittable)}자")
     if not targets:
         ks = {bytes([a, b]).decode("euc_kr") for a in range(0xB0, 0xC9) for b in range(0xA1, 0xFF)}

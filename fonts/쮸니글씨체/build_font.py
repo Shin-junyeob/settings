@@ -100,7 +100,7 @@ def collect(pdf_path):
     cells = cd.load_cells(pdf_path)  # 한글 음절 + overrides
     for ch, gray in cells.items():
         glyphs[ch] = (gray, "hangul", 3)
-    splittable = [c for c, g in cells.items() if cd.jamo(c)[2] and cd.parts(c, g)]
+    splittable = [c for c, g in cells.items() if cd.parts(c, g)]
     for code in range(0xAC00, 0xD7A4):
         t = chr(code)
         if t not in cells and (pair := cd.donors(t, cells, splittable)):
@@ -134,18 +134,29 @@ def build(glyphs, out_dir):
     charstrings["space"] = space.getCharString()
     metrics[".notdef"], metrics["space"] = (500, 0), (round(hangul_adv * 0.3), 0)
 
+    def visual(ink):
+        ys, xs = np.where(ink.any(axis=1))[0], np.where(ink.any(axis=0))[0]
+        return float(np.sqrt(np.ptp(ys) * np.ptp(xs)))
+    syllables = [visual(g[0]) for ch, g in glyphs.items() if "가" <= ch <= "힣"]
+    target = float(np.median(syllables))
+
     for ch, (ink, gray, kind, top_px) in sorted(glyphs.items()):
-        xs = np.where(ink.any(axis=0))[0]
+        xs, ys = np.where(ink.any(axis=0))[0], np.where(ink.any(axis=1))[0]
+        cx, cy = (xs[0] + xs[-1]) / 2, (ys[0] + ys[-1]) / 2
+        # 한글 음절은 크기 편차를 70%만 줄인다 — 직접 쓴 '얌'(89×60px)이 '체'(112×93px) 옆에서 너무 작아 보였음.
+        # 다 같은 크기로 맞추면 손글씨 느낌이 사라지므로 일부만, 한 글자에 0.8~1.3배까지만
+        sc = float(np.clip((target / visual(ink)) ** 0.7, 0.8, 1.3)) if "가" <= ch <= "힣" else 1.0
         if kind == "latin":
             adv = round(np.ptp(xs) * UNITS) + 2 * SIDE
             dx = SIDE - xs[0] * UNITS
             to_y = lambda y, t=top_px: (baseline_px - (t + y)) * UNITS
         else:
             # 넓은 글자(ㄸ·ㅃ 등)는 고정폭을 넘어 옆 글자를 침범하므로 그 글자만 넓힌다
-            adv = max(hangul_adv, round(np.ptp(xs) * UNITS) + 2 * SIDE)
-            dx = adv / 2 - (xs[0] + xs[-1]) / 2 * UNITS
+            adv = max(hangul_adv, round(np.ptp(xs) * sc * UNITS) + 2 * SIDE)
+            dx = adv / 2 - cx * UNITS
             to_y = lambda y, t=top_px: hangul_center + (box_px / 2 - (t + y)) * UNITS
-        to_font = lambda x, y, dx=dx, to_y=to_y, u=UNITS: (round(x * u + dx), round(to_y(y)))
+        to_font = lambda x, y, dx=dx, to_y=to_y, u=UNITS, sc=sc, cx=cx, cy=cy: (
+            round((cx + (x - cx) * sc) * u + dx), round(to_y(cy + (y - cy) * sc)))
         pen = T2CharStringPen(adv, None)
         trace(gray, to_font)(pen)
         name = f"uni{ord(ch):04X}"
