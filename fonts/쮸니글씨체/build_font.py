@@ -18,7 +18,7 @@ import potrace
 import pymupdf
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.t2CharStringPen import T2CharStringPen
-from fontTools.ttLib import TTFont
+from fontTools.ttLib import TTFont, newTable
 from PIL import Image
 from scipy import ndimage
 
@@ -171,6 +171,11 @@ def build(glyphs, out_dir):
     fb.setupOS2(sTypoAscender=asc, sTypoDescender=desc, sTypoLineGap=0,
                 usWinAscent=asc, usWinDescent=-desc, fsType=0)
     fb.setupPost()
+    # macOS는 현대 한글 11,172자를 다 갖추지 않은 글꼴을 한국어 글꼴로 안 쳐서 서체 메뉴의 '한국어'에서 빠진다
+    # (실측: 코드페이지 비트·상용 2,350자 채우기로는 안 되고, 지원 언어를 meta 표에 직접 적으면 됨)
+    meta = newTable("meta")
+    meta.data = {"dlng": "Kore, Latn", "slng": "Kore, Latn"}
+    fb.font["meta"] = meta
     otf = out_dir / f"{PS_NAME}.otf"
     fb.save(otf)
     font = TTFont(otf)
