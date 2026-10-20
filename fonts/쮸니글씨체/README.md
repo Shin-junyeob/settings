@@ -1,4 +1,4 @@
-# 쮸니글씨체 (Junyeob Hand)
+# 쮸니글씨체 (Jjyuni Hand)
 
 아이패드로 쓴 손글씨로 만든 웹 폰트. 한글 2,366자 + 자모 40자 + 영문·숫자·기호 100자.
 
@@ -12,19 +12,19 @@
 
 ```css
 @font-face {
-  font-family: "Junyeob Hand";
-  src: url("JunyeobHand.woff2") format("woff2");
+  font-family: "쮸니글씨체";
+  src: url("JjyuniHand.woff2") format("woff2");
   font-display: swap;
 }
-body { font-family: "Junyeob Hand", sans-serif; line-height: 1.6; }
+body { font-family: "쮸니글씨체", sans-serif; line-height: 1.6; }
 ```
 
 파일을 올리지 않고 이 저장소에서 바로 불러오는 경우(jsDelivr CDN):
 
 ```css
 @font-face {
-  font-family: "Junyeob Hand";
-  src: url("https://cdn.jsdelivr.net/gh/Shin-junyeob/settings@main/fonts/%EC%AE%B8%EB%8B%88%EA%B8%80%EC%94%A8%EC%B2%B4/out/JunyeobHand.woff2") format("woff2");
+  font-family: "쮸니글씨체";
+  src: url("https://cdn.jsdelivr.net/gh/Shin-junyeob/settings@main/fonts/%EC%AE%B8%EB%8B%88%EA%B8%80%EC%94%A8%EC%B2%B4/out/JjyuniHand.woff2") format("woff2");
   font-display: swap;
 }
 ```
@@ -34,7 +34,7 @@ body { font-family: "Junyeob Hand", sans-serif; line-height: 1.6; }
 
 ### 맥
 
-`out/JunyeobHand.otf`를 더블클릭 → 서체 관리자에서 설치.
+`out/JjyuniHand.otf`를 더블클릭 → 서체 관리자에서 설치. 한국어 환경에선 "쮸니글씨체", 영어 환경에선 "Jjyuni Hand"로 보인다.
 
 ### 아이패드·아이폰
 
@@ -45,8 +45,8 @@ OTF 파일을 바로 설치할 수는 없고, 서체 설치를 지원하는 앱�
 
 | 경로 | 내용 |
 |---|---|
-| `out/JunyeobHand.woff2` | 웹 폰트 (약 660KB) |
-| `out/JunyeobHand.otf` | 설치용 폰트 |
+| `out/JjyuniHand.woff2` | 웹 폰트 (약 660KB) |
+| `out/JjyuniHand.otf` | 설치용 폰트 |
 | `out/preview.html` | 예시 문장 미리보기 (같은 폴더의 woff2를 씀) |
 | `out/preview.png` | 미리보기 캡처 (macOS 렌더링) |
 | `out/template.pdf` | 손글씨 템플릿 (빈 칸, 30쪽) |

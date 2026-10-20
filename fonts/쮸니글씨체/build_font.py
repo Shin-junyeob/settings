@@ -2,7 +2,7 @@
 
 실행: uv run --no-project --with pymupdf --with numpy --with pillow --with scipy --with potracer \
         --with fonttools --with brotli python -I build_font.py out/template_60percent.pdf
-출력: out/JunyeobHand.otf, out/JunyeobHand.woff2, out/preview.html
+출력: out/JjyuniHand.otf, out/JjyuniHand.woff2, out/preview.html
 
 좌표: 한글 잉크 높이 중앙값 = HANGUL_HEIGHT units가 되도록 전체를 같은 배율로 키운다 (영문과의 크기 비율은 쓴 그대로).
 - 영문·숫자·기호: 쓴 위치 그대로, 기준선 위에 쓴 글자들의 바닥 중앙값을 y=0으로
@@ -25,8 +25,9 @@ from scipy import ndimage
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))  # python -I는 스크립트 폴더를 경로에서 빼므로
 import compose_demo as cd  # noqa: E402
-FAMILY = "Junyeob Hand"
-PS_NAME = "JunyeobHand"
+FAMILY = "쮸니글씨체"
+FAMILY_EN = "Jjyuni Hand"  # 영어 환경·한글을 못 쓰는 자리(CFF 이름표)용
+PS_NAME = "JjyuniHand"  # PostScript 이름·파일 이름은 규격상 ASCII만
 DPI = cd.DPI
 PX = DPI / 25.4  # mm → px
 HANGUL_HEIGHT = 760  # 칸 한 변=1000으로 하면 글씨가 em의 40%뿐이라 너무 작게 찍힘(실측)
@@ -156,7 +157,7 @@ def build(glyphs, out_dir):
     fb = FontBuilder(1000, isTTF=False)
     fb.setupGlyphOrder(order)
     fb.setupCharacterMap(cmap)
-    fb.setupCFF(PS_NAME, {"FullName": FAMILY}, charstrings, {})
+    fb.setupCFF(PS_NAME, {"FullName": FAMILY_EN}, charstrings, {})
     # lsb는 실제 외곽선 xMin이어야 한다
     cs = fb.font["CFF "].cff.topDictIndex[0].CharStrings
     bounds = {n: cs[n].calcBounds(cs) for n in order}
@@ -165,7 +166,8 @@ def build(glyphs, out_dir):
     ymin = min(b[1] for b in bounds.values() if b)
     asc, desc = round(ymax) + 20, round(ymin) - 20
     fb.setupHorizontalHeader(ascent=asc, descent=desc)
-    fb.setupNameTable({"familyName": FAMILY, "styleName": "Regular"})
+    fb.setupNameTable({"familyName": {"en": FAMILY_EN, "ko": FAMILY}, "styleName": "Regular",
+                       "fullName": {"en": FAMILY_EN, "ko": FAMILY}, "psName": PS_NAME})
     fb.setupOS2(sTypoAscender=asc, sTypoDescender=desc, sTypoLineGap=0,
                 usWinAscent=asc, usWinDescent=-desc, fsType=0)
     fb.setupPost()
@@ -179,10 +181,10 @@ def build(glyphs, out_dir):
 
 PREVIEW = """<!doctype html>
 <meta charset="utf-8">
-<title>Junyeob Hand</title>
+<title>쮸니글씨체</title>
 <style>
-@font-face { font-family: "Junyeob Hand"; src: url("JunyeobHand.woff2") format("woff2"); font-display: swap; }
-body { font-family: "Junyeob Hand", sans-serif; font-size: 40px; line-height: 1.5; margin: 32px; }
+@font-face { font-family: "쮸니글씨체"; src: url("JjyuniHand.woff2") format("woff2"); font-display: swap; }
+body { font-family: "쮸니글씨체", sans-serif; font-size: 40px; line-height: 1.5; margin: 32px; }
 </style>
 <p>다람쥐 헌 쳇바퀴에 타고파</p>
 <p>오늘은 2026년 10월 20일, Orbit을 켰다!</p>
