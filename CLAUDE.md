@@ -92,6 +92,9 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
   기다렸다 다시 띄운다. **`/mods`는 cmux를 건드리지 않고 신호 파일만 만든다**(`pluginConfigs."pane-tools@inline"`의
   `launcher: command`에 `touch … # {cmd}`). 새로 나누지 않으니 패널이 늘지 않고, 허브가 떠 있는 동안 들어온
   `/mods`는 버린다(안 그러면 닫자마자 다시 열림).
+  **허브의 `[ 설정 ]`에서 '띄울 곳'은 바꾸지 말 것** — 거기서 고른 값(`launcher`·`command`·`followPane` 등)은
+  `~/.claude/pane-tools/settings.json`에 적히고 `/mods`가 `/config`의 `pluginConfigs`보다 **먼저** 쓴다(working_place `886dc85`).
+  바꾸면 위의 신호 파일 방식이 덮여 ③ 고정이 풀린다. 되돌리려면 그 파일에서 해당 키를 지운다.
 - **세션 안에서 cmux를 직접 부르지 않는다.** 백그라운드 세션은 Claude 데몬 아래서 돌고, cmux 소켓 기본값 `cmuxOnly`는
   그 데몬을 띄운 패널이 살아 있을 때만 접근을 허락한다. 그 패널이 사라지면 데몬 아래 세션 **전부**의 cmux 명령이
   `Access denied - only processes started inside cmux`로 막힌다(실측). 처음엔 `/mods`가 세션에서 ③ 탭을 직접
