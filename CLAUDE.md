@@ -156,7 +156,8 @@ launchd(1) 밑 고아로 넘겨져 cmux 조상이 끊긴다. 새로 여는 세�
 (10-20 2.1.304, 10-21 2.1.306) 그때마다 B로 그 세션만 다시 띄운다.
 
 **③ 지킴이가 꺼졌을 때**(③에 허브 대신 셸 프롬프트만 보임, 대기 중 Ctrl+C 등): ③에서
-`bash ~/Developer/personal/settings/cmux-mods-pane.sh`를 다시 실행한다.
+`bash ~/Developer/personal/settings/cmux-mods-pane.sh`를 다시 실행한다. 원인 모르게 두 번 꺼져서(2026-10-20·21) 지킴이가
+`~/Library/Logs/cmux-mods-pane.log`에 시작·허브 종료 코드·끝난 이유(Ctrl+C / TERM·HUP)를 남긴다 — 또 꺼지면 이것부터 본다.
 
 ## 관리하지 않는 것 (의도적 제외)
 

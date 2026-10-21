@@ -7,9 +7,17 @@
 # 허브는 ① 패널에 열린 세션을 따라간다(--follow-pane cmux:0 = 이 워크스페이스의 0번 패널).
 HUB="$HOME/Developer/personal/working_place/pane-tools/bin/hub.py"
 SIG="$HOME/.claude/pane-tools/mods-slot.signal"
+# 이 자리가 원인 모르게 두 번 꺼졌다(2026-10-20·21, ③ 에 셸만 남음) — 다음엔 왜인지 보이게 시작·허브 종료·끝난 이유를 적는다
+LOG="$HOME/Library/Logs/cmux-mods-pane.log"
+log() { echo "$(date '+%F %T') [$$] $*" >> "$LOG"; }
+trap 'log "끝남 — Ctrl+C(INT)"; exit 130' INT
+trap 'log "끝남 — 신호 TERM/HUP"; exit 143' TERM HUP
+trap 'log "종료 (exit $?)"' EXIT
+log "시작"
 mkdir -p "$(dirname "$SIG")"
 while :; do
   python3 "$HUB" --follow-pane cmux:0
+  log "허브 종료 (exit $?)"
   # 허브가 떠 있는 동안 들어온 /mods 는 버린다 — 안 그러면 닫자마자 다시 열린다
   rm -f "$SIG"
   clear
