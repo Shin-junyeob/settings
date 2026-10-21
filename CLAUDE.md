@@ -76,13 +76,15 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
   `settings.json`의 `env.CLAUDE_CODE_PLUGIN_DIRS`로 불러와서 파일을 고치면 바로 반영되고 `git push/pull`로 PC끼리 맞춘다.
   새 맥이면 그 저장소의 `bash install.sh` 한 줄로 이 설정이 만들어진다(심링크된 `settings.json`도 지원, `52e3e2a`).
 - **cmux 기본 레이아웃** — `~/.config/cmux/cmux.json`의 `orbit-dev`(앱 실행·`cmd+n` 기본값, 그림은 그 파일 맨 위).
-  ① `claude agents` | ② `claude agents` / ③ mods 허브 | ④ Orbit(`localhost:3000`) / ⑤ 터미널.
+  ① `claude agents` | ② 세션 활동 피드(`feed.py`) / ③ mods 허브 | ④ Orbit(`localhost:3000`) / ⑤ 터미널.
+  ②는 2026-10-21 `claude agents`에서 피드로 바꿨다 — 다른 PC(tmux)는 `/mods`가 `feedTarget` 패널에 피드를 띄우지만
+  cmux에선 그 장치가 없어서 ③처럼 레이아웃 명령으로 고정한다(q로 닫으면 셸이 남으니 다시 띄우려면 명령을 다시 친다).
   ③은 **22줄**(테트리스 판 20 + 테두리 2)에 맞춰 ⑤를 줄였다 — 비율 0.763 / 0.393, 이 맥 창 크기에서 실측(② 13 · ③ 22 · ⑤ 10줄).
   패널을 직접 조절할 땐 `cmux resize-pane --pane <ref> -U|-D --amount <px>`(단위는 픽셀, 그 방향으로 경계를 민다).
   CLI의 `cmux workspace create`는 기본값을 적용하지 않으므로 지금 화면에 적용하려면 `--layout`으로 그 JSON을 넘긴다.
 - **③ 허브는 ①에 열린 세션을 따라간다** — `--follow-pane cmux:0`(이 워크스페이스의 0번 패널, working_place `6361812`).
   패널은 번호로 찾는다: `surface:N`은 cmux를 켤 때마다 바뀌지만 레이아웃 순서는 그대로다.
-  그래서 ①·②엔 레이아웃에서 이름을 붙이지 않는다 — 탭 제목이 '열린 세션 이름'이어야 ③이 읽는다.
+  그래서 ①엔 레이아웃에서 이름을 붙이지 않는다 — 탭 제목이 '열린 세션 이름'이어야 ③이 읽는다.
 
 ### 동작 규칙
 
