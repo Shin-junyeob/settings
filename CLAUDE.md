@@ -36,7 +36,7 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 | `hooks/check-settings-drift.sh` | 심링크 끊김 감지 (SessionStart) — 정상이면 침묵 |
 | `hud/statusline-wrapper.sh` | ponytail 배지 + OMC HUD를 한 상태줄로 합침 |
 | `.omc/hud-config.json` | HUD 표시 프리셋 |
-| `agents/*.md` | verified-team 에이전트 정의 (5개) |
+| `agents/*.md` | verified-team 에이전트 정의 (5개) + `designer-agent` (문서·자료 디자인) |
 | `memory/` | 자동 메모리 — 모든 프로젝트가 공유하는 단일 기억 |
 | `skills/<이름>/` | 내가 만든 전역 스킬 (`claude/skills/README.md` 참고) |
 
@@ -66,6 +66,11 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 `independent-checker`(로컬 ollama = 다른 가중치 모델의 동의).
 
 규칙은 전부 각 `claude/agents/*.md` 안에 있다. 설계 의도와 v0에서 바뀐 이유는 커밋 `036ef76` 참고.
+
+**`designer-agent`**(2026-10-22) — 검증 팀과 별개로, PDF·HTML·Markdown·PPTX·DOCX 같은 문서·자료를 디자인 스킬
+(`theme-factory`·`frontend-design`·`impeccable`·`diagram-design`·`dataviz`·`pptx/pdf/docx`)로 만들고, 넘기기 전에
+이미지로 뽑아 직접 확인한다(HTML은 `agent-browser` 두 폭 스크린샷 + `impeccable detect`). 공유 링크 공개는 메인 세션이 한다.
+새 에이전트는 `install.sh`의 `PATHS`에 한 줄 더하고 `./install.sh` — 스킬과 달리 자동으로 집지 않는다.
 
 ## mods와 cmux 화면
 
