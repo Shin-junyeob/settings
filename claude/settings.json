@@ -1,7 +1,8 @@
 {
   "env": {
     "CLAUDE_CODE_PLUGIN_DIRS": "/Users/sinjun-yeob/Developer/personal/working_place",
-    "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1"
+    "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1",
+    "IMPECCABLE_NO_TELEMETRY": "1"
   },
   "model": "opus",
   "hooks": {
