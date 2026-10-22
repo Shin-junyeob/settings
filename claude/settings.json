@@ -105,5 +105,6 @@
   "autoMemoryDirectory": "~/.claude/memory",
   "theme": "dark",
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "feedbackDrafts": "off"
 }
