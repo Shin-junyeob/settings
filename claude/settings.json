@@ -1,4 +1,8 @@
 {
+  "env": {
+    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/sinjun-yeob/Developer/personal/working_place",
+    "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1"
+  },
   "model": "opus",
   "hooks": {
     "PreToolUse": [
@@ -65,7 +69,8 @@
     "claude-md-management@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "diagram-design@diagram-design": true
   },
   "extraKnownMarketplaces": {
     "omc": {
@@ -79,16 +84,13 @@
         "source": "github",
         "repo": "DietrichGebert/ponytail"
       }
+    },
+    "diagram-design": {
+      "source": {
+        "source": "github",
+        "repo": "cathrynlavery/diagram-design"
+      }
     }
-  },
-  "tui": "fullscreen",
-  "autoMemoryDirectory": "~/.claude/memory",
-  "theme": "dark",
-  "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true,
-  "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/sinjun-yeob/Developer/personal/working_place",
-    "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1"
   },
   "pluginConfigs": {
     "pane-tools@inline": {
@@ -97,5 +99,10 @@
         "command": "touch \"$HOME/.claude/pane-tools/mods-slot.signal\" # {cmd}"
       }
     }
-  }
+  },
+  "tui": "fullscreen",
+  "autoMemoryDirectory": "~/.claude/memory",
+  "theme": "dark",
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true
 }
