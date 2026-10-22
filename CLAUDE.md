@@ -71,6 +71,10 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 (`theme-factory`·`frontend-design`·`impeccable`·`diagram-design`·`dataviz`·`pptx/pdf/docx`)로 만들고, 넘기기 전에
 이미지로 뽑아 직접 확인한다(HTML은 `agent-browser` 두 폭 스크린샷 + `impeccable detect`). 공유 링크 공개는 메인 세션이 한다.
 새 에이전트는 `install.sh`의 `PATHS`에 한 줄 더하고 `./install.sh` — 스킬과 달리 자동으로 집지 않는다.
+**에이전트가 불리는지는 설명(description)이 정한다.** 처음 설명("결과물의 모양이 중요할 때 사용")으로는 "마크다운 문서 만들어줘"·"html로
+저장해줘"·"ppt 만들어줘" 같은 단순 요청에서 0/6 — 메인이 직접 Write하거나 pptx 스킬을 불렀다. 설명을 "Use PROACTIVELY"와 단순 요청 예시로
+바꾸자 6/6, 제외로 적은 저장소 README 수정·대화 요약은 직접 처리 4/4(2026-10-22, `claude -p`로 첫 도구 호출을 기록해 실측).
+새 에이전트를 만들면 이렇게 실제 요청으로 불리는지부터 잴 것 — `claude -p`의 표준입력은 막을 것(`stdin=DEVNULL`), 안 그러면 넘긴 스크립트가 프롬프트에 섞인다.
 
 ## mods와 cmux 화면
 
