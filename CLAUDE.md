@@ -103,13 +103,16 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 - **mods는 세션이 시작할 때만 붙는다.** `CLAUDE_CODE_PLUGIN_DIRS`와 `pluginConfigs`는 프로세스 시작 시점에만 읽히고,
   `/reload-plugins`는 마켓플레이스 플러그인만 다시 읽는다(실측: 8개만 재로드, mods 0). 설정을 바꾼 뒤엔 세션을 새로
   열어야 하고, mods가 붙기 전에 쓴 토큰은 포켓몬에 쌓이지 않는다.
-- **허브는 오래 켜 두므로 코드 반영 방식이 다르다.** `hub.py`가 바뀌면 허브가 같은 인자로 스스로 다시 뜨고
-  (working_place `818c2dc`), `pokemon.py`는 바뀔 때 다시 읽는다. 그 밖의 모듈(`_pokedata.py`·`memo.py` 등)만
-  고쳤다면 `touch …/pane-tools/bin/hub.py`로 허브를 다시 띄울 것 — 안 그러면 옛 코드로 계속 돈다(실측).
-  재시작은 파일이 **5초 동안 안 바뀐 뒤**, 새 파일에도 재시작 코드가 있을 때만 한다. working_place는 작업 트리가
+- **허브는 오래 켜 두므로 코드 반영 방식이 다르다.** `bin/`의 `.py` 중 하나라도 바뀌면 허브가 같은 인자로 스스로
+  다시 뜬다(working_place `818c2dc` → `f6a4925`부터 모든 모듈, 그 전엔 `hub.py`만이라 `touch`가 필요했다). 재시작은 파일이 **5초 동안 안 바뀐 뒤**, 새 파일에도 재시작 코드가 있을 때만 한다. working_place는 작업 트리가
   곧 실행 중인 mods라, `git switch main` → `git pull` 사이 3초 동안 옛 `hub.py`(재시작 코드 없음)로 옮겨 타
   갇힌 적이 있다(2026-10-20, 복사본에서 재현·수정 확인). 머지 뒤 받을 땐 `git fetch && git switch -C main origin/main`
   처럼 옛 커밋을 거치지 않는 쪽이 안전하다.
+- **mods 자동 업데이트** — 이 맥도 cron으로 10분마다·켤 때(`@reboot … --boot`, 네트워크를 2분까지 기다림) `extras/autopull.sh`가
+  GitHub에서 받는다(2026-10-22 등록, `install.sh --auto-pull`과 같은 두 줄을 `crontab`에 직접 — 그 스크립트를 통째로 돌리면
+  `/mods` 띄울 곳 설정까지 다시 써서 ③ 고정이 덮일 수 있어서). 기록은 `~/.claude/pane-tools/autopull.log`, 받을 게 없으면
+  아무것도 안 적는다. 이 맥에 커밋 안 한 수정·안 올린 커밋이 있으면 받지 않고 그 사실만 적는다. cron 최소 환경에서 SSH 받기 되는 것과
+  cron이 실제로 작업을 돌리는 것까지 확인함(받음 4개 → `680a6fc`).
 - **동료 그림** — 허브에 PokeAPI 도트를 3줄 크기로 띄운다. 허브가 시작할 때 터미널에 물어 방식을 고른다:
   Kitty 그래픽(cmux — 2026-10-20 질의·눈으로 확인) → Sixel(Windows Terminal·WezTerm, tmux 안에선 그 패널만 passthrough —
   다른 PC에서 추가, working_place `828bd0d`) → 둘 다 아니면 `▀▄` 칸. 컬러/회색은 PC마다
