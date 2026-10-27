@@ -23,13 +23,33 @@ trap 'log "끝남 — 신호 TERM/HUP"; exit 143' TERM HUP
 trap 'log "종료 (exit $?)"' EXIT
 log "시작"
 mkdir -p "$(dirname "$SIG")"
+# 허브를 닫으면 이 칸은 평소 터미널(zsh)로 쓴다 — 빈 화면으로 /mods 만 기다리면 칸 하나가 놀았다(2026-10-28).
+# 그 zsh 는 평소 설정을 그대로 읽고, USR1 을 받으면 끝난다 → 아래 반복이 허브를 다시 띄운다. 명령이 도는 중이면
+# zsh 가 그 명령이 끝난 뒤 처리한다(실행 중인 걸 끊지 않는다).
+ZD="$HOME/.claude/pane-tools/slot-zsh"
+ZPID="$ZD/pid"
+mkdir -p "$ZD"
+cat > "$ZD/.zshenv" <<'EOF'
+ZDOTDIR="$HOME"; [ -f "$HOME/.zshenv" ] && source "$HOME/.zshenv"; ZDOTDIR="$HOME/.claude/pane-tools/slot-zsh"
+EOF
+cat > "$ZD/.zshrc" <<'EOF'
+ZDOTDIR="$HOME"; [ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"
+echo $$ > "$HOME/.claude/pane-tools/slot-zsh/pid"
+TRAPUSR1() { exit 0 }
+EOF
 while :; do
   python3 "$HUB" --follow-pane cmux:0
   log "허브 종료 (exit $?)"
   # 허브가 떠 있는 동안 들어온 /mods 는 버린다 — 안 그러면 닫자마자 다시 열린다
-  rm -f "$SIG"
+  rm -f "$SIG" "$ZPID"
   clear
   # Ctrl+C 는 안내하지 않는다 — '(Ctrl+C: 이 자리 끝내기)'를 해야 할 일로 읽고 눌러서 이 자리가 꺼졌다(2026-10-28)
-  echo "mods 허브를 닫았습니다 — Claude 에서 /mods 를 입력하면 여기에 다시 뜹니다."
-  until [ -e "$SIG" ]; do sleep 1; done
+  echo "mods 허브를 닫았습니다 — 이 칸은 터미널로 쓰고, Claude 에서 /mods 를 입력하면 허브로 돌아옵니다."
+  ( until [ -e "$SIG" ]; do sleep 1; done
+    until [ -s "$ZPID" ]; do sleep 0.2; done
+    kill -USR1 "$(cat "$ZPID")" ) &
+  WATCH=$!
+  ZDOTDIR="$ZD" zsh -i
+  kill "$WATCH" 2>/dev/null
+  wait "$WATCH" 2>/dev/null
 done

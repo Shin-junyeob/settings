@@ -103,6 +103,9 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
   기다렸다 다시 띄운다. **`/mods`는 cmux를 건드리지 않고 신호 파일만 만든다**(`pluginConfigs."pane-tools@inline"`의
   `launcher: command`에 `touch … # {cmd}`). 새로 나누지 않으니 패널이 늘지 않고, 허브가 떠 있는 동안 들어온
   `/mods`는 버린다(안 그러면 닫자마자 다시 열림).
+  **허브를 닫으면 ③은 평소 터미널(zsh, `~/.zshrc` 그대로)이 된다**(2026-10-28 — 그 전엔 빈 화면으로 신호만 기다려 칸이 놀았다).
+  지킴이가 뒤에서 신호를 보다가 오면 그 zsh에 USR1을 보내 끝내고 허브를 다시 띄운다(명령이 도는 중이면 끝난 뒤). 셸에서 `exit`해도
+  허브로 돌아온다. 그 zsh는 `ZDOTDIR=~/.claude/pane-tools/slot-zsh`(지킴이가 매번 만듦)로 떠서 평소 설정을 읽은 뒤 신호 처리만 더한다.
   **허브의 `[ 설정 ]`에서 '띄울 곳'은 바꾸지 말 것** — 거기서 고른 값(`launcher`·`command`·`followPane` 등)은
   `~/.claude/pane-tools/settings.json`에 적히고 `/mods`가 `/config`의 `pluginConfigs`보다 **먼저** 쓴다(working_place `886dc85`).
   바꾸면 위의 신호 파일 방식이 덮여 ③ 고정이 풀린다. 되돌리려면 그 파일에서 해당 키를 지운다.
