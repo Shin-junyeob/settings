@@ -10,8 +10,8 @@ SIG="$HOME/.claude/pane-tools/mods-slot.signal"
 # 이 자리가 원인 모르게 두 번 꺼졌다(2026-10-20·21, ③ 에 셸만 남음) — 다음엔 왜인지 보이게 시작·허브 종료·끝난 이유를 적는다
 LOG="$HOME/Library/Logs/cmux-mods-pane.log"
 log() { echo "$(date '+%F %T') [$$] $*" >> "$LOG"; }
-# Ctrl+C 한 번에 이 자리가 꺼져 /mods 가 안 먹었다 — 허브가 닫히고 몇 초 뒤 INT 가 들어오는 일이 거듭돼서(2026-10-28 00:07·00:13)
-# 한 번은 무시하고 적어 두며, 3초 안에 두 번 눌러야 끝낸다
+# Ctrl+C 한 번에 이 자리가 꺼져 /mods 가 안 먹었다(2026-10-28 00:07·00:13 — 닫힌 화면의 안내 문구를 보고 누름).
+# 실수로 눌러도 버티게 한 번은 무시하고 적어 두며, 3초 안에 두 번 눌러야 끝낸다
 on_int() {
   local now; now=$(date +%s)
   if (( now - ${LAST_INT:-0} <= 3 )); then log "끝남 — Ctrl+C 두 번"; exit 130; fi
@@ -29,6 +29,7 @@ while :; do
   # 허브가 떠 있는 동안 들어온 /mods 는 버린다 — 안 그러면 닫자마자 다시 열린다
   rm -f "$SIG"
   clear
-  echo "mods 허브를 닫았습니다 — Claude 에서 /mods 를 입력하면 여기에 다시 뜹니다. (Ctrl+C 두 번: 이 자리 끝내기)"
+  # Ctrl+C 는 안내하지 않는다 — '(Ctrl+C: 이 자리 끝내기)'를 해야 할 일로 읽고 눌러서 이 자리가 꺼졌다(2026-10-28)
+  echo "mods 허브를 닫았습니다 — Claude 에서 /mods 를 입력하면 여기에 다시 뜹니다."
   until [ -e "$SIG" ]; do sleep 1; done
 done
