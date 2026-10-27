@@ -172,6 +172,12 @@ launchd(1) 밑 고아로 넘겨져 cmux 조상이 끊긴다. 새로 여는 세�
 **③ 지킴이가 꺼졌을 때**(③에 허브 대신 셸 프롬프트만 보임, 대기 중 Ctrl+C 등): ③에서
 `bash ~/Developer/personal/settings/cmux-mods-pane.sh`를 다시 실행한다. 원인 모르게 두 번 꺼져서(2026-10-20·21) 지킴이가
 `~/Library/Logs/cmux-mods-pane.log`에 시작·허브 종료 코드·끝난 이유(Ctrl+C / TERM·HUP)를 남긴다 — 또 꺼지면 이것부터 본다.
+**허브 종료가 exit 1 → 127이면 Homebrew Python이 지워진 것**(2026-10-27 실측). mods는 `python3`(Homebrew)로 도는데, 그 Python이
+다른 패키지의 의존성으로만 깔려 있으면 그 패키지를 `brew upgrade`할 때 옛 버전(3.14)이 지워지고, `brew uninstall`할 때 자동 정리로
+통째로 지워진다(그날 다른 세션이 Ollama를 올렸다가 공식 앱으로 바꾸며 둘 다 일어남). 돌던 허브는 버티다가 스스로 재시작하는
+순간(`os.execv`) 실행 파일이 없어 죽고, 지킴이 bash는 옛 경로를 기억해 127로 실패한다. `brew install python3`로 **직접 설치**해
+'요청해서 설치'로 표시했다(이러면 자동 정리가 안 지운다) — 그 뒤 ③ 지킴이와 ② 피드를 다시 띄운다. 다른 세션에서 brew로
+패키지를 올리거나 지울 땐 이 영향을 함께 볼 것.
 
 ## 관리하지 않는 것 (의도적 제외)
 
