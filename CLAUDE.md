@@ -36,7 +36,7 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 | `hooks/check-settings-drift.sh` | 심링크 끊김 감지 (SessionStart) — 정상이면 침묵 |
 | `hud/statusline-wrapper.sh` | ponytail 배지 + OMC HUD를 한 상태줄로 합침 |
 | `.omc/hud-config.json` | HUD 표시 프리셋 |
-| `agents/*.md` | verified-team 에이전트 정의 (5개) + `designer-agent` (문서·자료 디자인) |
+| `agents/*.md` | verified-team 에이전트 정의 (5개) + `designer-agent` (문서·자료 디자인) + `music-theory-agent` (음악이론) |
 | `memory/` | 자동 메모리 — 모든 프로젝트가 공유하는 단일 기억 |
 | `skills/<이름>/` | 내가 만든 전역 스킬 (`claude/skills/README.md` 참고) |
 
@@ -75,6 +75,12 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 저장해줘"·"ppt 만들어줘" 같은 단순 요청에서 0/6 — 메인이 직접 Write하거나 pptx 스킬을 불렀다. 설명을 "Use PROACTIVELY"와 단순 요청 예시로
 바꾸자 6/6, 제외로 적은 저장소 README 수정·대화 요약은 직접 처리 4/4(2026-10-22, `claude -p`로 첫 도구 호출을 기록해 실측).
 새 에이전트를 만들면 이렇게 실제 요청으로 불리는지부터 잴 것 — `claude -p`의 표준입력은 막을 것(`stdin=DEVNULL`), 안 그러면 넘긴 스크립트가 프롬프트에 섞인다.
+
+**`music-theory-agent`**(2026-11-03, game 세션의 음악 루프 게임용으로 만들었지만 전역) — 음계·코드·화성 진행·음정·이명동음·편곡 판단을
+`music21`(`uv run --with music21`, 10.5.2)로 계산해 확인하고 프로젝트 테스트 케이스로 넘긴다. 오디오·UI 구현은 안 한다.
+**에이전트는 항상 전역으로 만든다**(사용자 결정 — 언제 또 쓸지 모른다). 호출 실측: 예시를 넣은 'Use PROACTIVELY' 설명으로도 1/4 — 메인이 저장소를
+먼저 훑고 직접 Write·판단했다. "메인이 직접 읽어 판단하거나 Write하지 말고 **저장소를 살펴보기 전에 먼저** 맡긴다"를 넣자 4/4, 제외 2/2.
+첫 도구 호출만 재면 메인의 사전 탐색(Bash) 때문에 0으로 보이니 **도구 호출 몇 개(8개·3분)까지** 따라가서 잴 것.
 
 ## mods와 cmux 화면
 

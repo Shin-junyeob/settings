@@ -23,6 +23,7 @@ PATHS=(
   agents/source-verifier.md
   agents/independent-checker.md
   agents/designer-agent.md
+  agents/music-theory-agent.md
 )
 
 # 내가 만든 스킬은 개수가 계속 변하므로 하드코딩하지 않고 있는 대로 집는다.
