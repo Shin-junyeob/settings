@@ -7,7 +7,9 @@ if echo "$command" | grep -qE 'rm[[:space:]]+(-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*|-[a
   echo "차단됨: 홈/루트 디렉토리 대상 rm -rf 로 보입니다. 경로를 다시 확인하세요." >&2
   exit 2
 fi
-if echo "$command" | grep -qE 'git[[:space:]]+push.*(--force|-f)([[:space:]]|$)'; then
+# 그 git push 명령 안에서만 본다(; & | 앞까지) — '.*' 로 뒤에 이어 붙인 'pgrep -f' 까지 강제 push 로 막았다(2026-11-05).
+# -fu 처럼 붙여 쓴 짧은 옵션도 잡는다.
+if echo "$command" | grep -qE 'git[[:space:]]+push[^;&|]*[[:space:]](--force|-[a-zA-Z]*f[a-zA-Z]*)([[:space:]]|[;&|]|$)'; then
   echo "차단됨: git push --force 는 원격 히스토리를 덮어씁니다. 정말 필요하면 사용자가 직접 실행하세요." >&2
   exit 2
 fi
