@@ -1,0 +1,48 @@
+막음	git push --force
+막음	git push -f origin main
+막음	git push origin main -f
+막음	git push -fu origin x
+막음	git push --force && echo done
+막음	cd repo && git push origin main --force; ls
+막음	git push 2>&1 --force
+막음	git push origin main 2>&1 -f
+막음	git push &>/dev/null --force
+막음	git push origin +main
+막음	git push --force-with-lease origin main
+막음	git -C repo push -f
+막음	/usr/bin/git push --force
+막음	echo hi; git push origin main --force
+통과	git push -q origin --delete b; pgrep -f "bin/(hub).py"
+통과	git push -u origin br && pgrep -fl x
+통과	git push origin --follow-tags
+통과	git push -q -u origin feat
+통과	git push origin main | grep -v remote; ps -f
+통과	git push origin main 2>&1 | tail -1
+막음	git commit -m "git push --force 를 막는다"
+통과	pgrep -f hub && git status
+막음	git push origin +main:main
+막음	git push origin HEAD:refs/heads/x +y
+통과	git push origin main:main
+통과	git push origin v1.0 && echo a+b
+막음	git push x#y --force
+막음	eval "git push --force"
+막음	bash -c "git push origin main -f"
+막음	git -c remote.origin.push=+refs/heads/*:refs/heads/* push
+막음	git push --mirror backup
+막음	$GIT push --force
+막음	`which git` push -f
+막음	git push \<NL>  --force origin main
+막음	echo "#git push --force comment"
+통과	git push origin main # deploy
+통과	bash -c "git status"
+통과	echo "scan: $(git diff | wc -l)" && git push -q origin main
+막음	git push --mirr backup
+막음	git push --forc origin main
+막음	echo x | xargs git push -f
+막음	git config remote.origin.push +refs/heads/*
+막음	git --config-env=remote.origin.mirror=V push
+막음	GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=remote.origin.push git push
+막음	c=push; git $c --force
+통과	git push --follow-tags origin main
+통과	git push --mi-not-real
+통과	git config user.name x
