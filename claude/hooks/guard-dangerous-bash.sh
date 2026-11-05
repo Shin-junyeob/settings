@@ -13,14 +13,16 @@ fi
 # 따옴표가 안 맞아 나눌 수 없으면 예전처럼 넓게 막는다.
 force_push=$(printf '%s' "$command" | python3 -c '
 import re, shlex, sys
-cmd = sys.stdin.read()
+cmd = sys.stdin.read().replace("\\\n", "")  # 줄 끝 \ 이어 쓰기는 한 줄로(보안 검토 2)
+BROAD = re.compile(r"push.*(--force|--mirror|\s-[a-zA-Z]*f|\s\+\S)", re.S)  # 문자열 안 명령·나눌 수 없을 때 쓰는 넓은 검사
 try:
     lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
     lex.whitespace = " \t\r"  # 줄바꿈은 명령 구분으로 남긴다
+    lex.commenters = ""  # # 를 주석으로 보면 뒤의 --force 를 놓친다(보안 검토 1)
     lex.wordchars += "+:@%^,{}"  # +main:main 같은 refspec 을 한 낱말로
     toks = list(lex)
 except ValueError:
-    print("1" if re.search(r"git\s+push.*(--force|\s-[a-zA-Z]*f)", cmd, re.S) else "0")
+    print("1" if re.search(r"git\s+" + BROAD.pattern, cmd, re.S) else "0")
     sys.exit()
 segs, cur = [], []
 for t in toks:
@@ -29,19 +31,26 @@ for t in toks:
     else:
         cur.append(t)
 segs.append(cur)
+def flag_forced(a):
+    return a.startswith("--force") or a == "--mirror" or (re.fullmatch(r"-[a-zA-Z]+", a) and "f" in a) or (a.startswith("+") and len(a) > 1)
 def forced(seg):
     names = [t.rsplit("/", 1)[-1] for t in seg]
-    if "git" not in names:
-        return False
-    rest = seg[names.index("git") + 1:]
-    if "push" not in rest:
-        return False
-    for a in rest[rest.index("push") + 1:]:
-        if a == "--" :
-            continue
-        if a.startswith("--force") or (re.fullmatch(r"-[a-zA-Z]+", a) and "f" in a) or (a.startswith("+") and len(a) > 1):
+    # eval · bash -c · sh -c · xargs 처럼 문자열을 명령으로 돌리면 그 문자열을 넓게 본다(보안 검토 2)
+    if names and (names[0] in ("eval", "bash", "sh", "zsh", "dash", "xargs", "env", "command", "exec") or "xargs" in names):
+        if any("git" in t and BROAD.search(t) for t in seg) or ("git" in names and "push" in seg and any(flag_forced(a) for a in seg)):
             return True
-    return False
+    if "push" not in seg:
+        return False
+    i = seg.index("push")
+    before = seg[:i]
+    # git 이 변수·명령 치환으로 불리면($GIT push …) 이름으로 못 알아보니 강제 옵션만으로 막는다(보안 검토 3)
+    dynamic = any("$" in t or "`" in t for t in before)
+    if "git" not in names[:i] and not dynamic:
+        return False
+    # -c 설정으로 강제(+refspec · mirror)를 넣는 것도 막는다(보안 검토 3)
+    if any("+" in t.split("=", 1)[-1] or "mirror" in t for t in before if "=" in t):
+        return True
+    return any(flag_forced(a) for a in seg[i + 1:] if a != "--")
 print("1" if any(forced(s) for s in segs) else "0")
 ' 2>/dev/null)
 if [ "$force_push" = "1" ]; then
