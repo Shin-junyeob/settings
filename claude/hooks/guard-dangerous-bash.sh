@@ -31,26 +31,32 @@ for t in toks:
     else:
         cur.append(t)
 segs.append(cur)
+DANGER_LONG = ("--force", "--force-with-lease", "--force-if-includes", "--mirror")
 def flag_forced(a):
-    return a.startswith("--force") or a == "--mirror" or (re.fullmatch(r"-[a-zA-Z]+", a) and "f" in a) or (a.startswith("+") and len(a) > 1)
+    long_ = a.split("=", 1)[0]
+    # git 은 긴 옵션을 앞부분만 써도 받는다(--mirr = --mirror) — 위험한 긴 옵션의 앞부분이면 막는다(보안 검토)
+    if long_.startswith("--") and len(long_) > 3 and any(d.startswith(long_) or long_.startswith(d) for d in DANGER_LONG):
+        return True
+    return bool(re.fullmatch(r"-[a-zA-Z]+", a) and "f" in a) or (a.startswith("+") and len(a) > 1)
+CONFIG_PUSH = re.compile(r"remote\.[^\s=]*\.(push|mirror)|GIT_CONFIG_(COUNT|KEY|VALUE|PARAMETERS)|--config-env", re.I)
 def forced(seg):
     names = [t.rsplit("/", 1)[-1] for t in seg]
-    # eval · bash -c · sh -c · xargs 처럼 문자열을 명령으로 돌리면 그 문자열을 넓게 본다(보안 검토 2)
-    if names and (names[0] in ("eval", "bash", "sh", "zsh", "dash", "xargs", "env", "command", "exec") or "xargs" in names):
-        if any("git" in t and BROAD.search(t) for t in seg) or ("git" in names and "push" in seg and any(flag_forced(a) for a in seg)):
-            return True
-    if "push" not in seg:
-        return False
-    i = seg.index("push")
-    before = seg[:i]
-    # git 이 변수·명령 치환으로 불리면($GIT push …) 이름으로 못 알아보니 강제 옵션만으로 막는다(보안 검토 3)
-    dynamic = any("$" in t or "`" in t for t in before)
-    if "git" not in names[:i] and not dynamic:
-        return False
-    # -c 설정으로 강제(+refspec · mirror)를 넣는 것도 막는다(보안 검토 3)
-    if any("+" in t.split("=", 1)[-1] or "mirror" in t for t in before if "=" in t):
+    # 어느 자리든 git 이 든 문자열이 강제 push 꼴이면 막는다(eval · bash -c · xargs 안 · 따옴표 안 — 보안 검토)
+    if any("git" in t and " " in t and BROAD.search(t) for t in seg):
         return True
-    return any(flag_forced(a) for a in seg[i + 1:] if a != "--")
+    # 원격의 push·mirror 설정을 바꾸는 것(git config · -c · --config-env · GIT_CONFIG_*)도 강제 push 로 본다
+    if any(CONFIG_PUSH.search(t) for t in seg) and ("git" in names or any(t.startswith("GIT_CONFIG") for t in seg)):
+        return True
+    gi = next((k for k, n in enumerate(names) if n == "git" or "$" in seg[k] or "`" in seg[k]), None)
+    if gi is None:
+        return False
+    rest = seg[gi + 1:]
+    if "push" in rest:
+        return any(flag_forced(a) for a in rest[rest.index("push") + 1:] if a != "--")
+    # 하위 명령을 변수·치환으로 감추면($cmd · `…`) push 가 안 보여도 강제 옵션만으로 막는다
+    if any("$" in t or "`" in t for t in seg[gi:]):
+        return any(flag_forced(a) for a in rest if a != "--")
+    return False
 print("1" if any(forced(s) for s in segs) else "0")
 ' 2>/dev/null)
 if [ "$force_push" = "1" ]; then
