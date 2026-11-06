@@ -36,7 +36,7 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 | `hooks/check-settings-drift.sh` | 심링크 끊김 감지 (SessionStart) — 정상이면 침묵 |
 | `hud/statusline-wrapper.sh` | ponytail 배지 + OMC HUD를 한 상태줄로 합침 |
 | `.omc/hud-config.json` | HUD 표시 프리셋 |
-| `agents/*.md` | verified-team 에이전트 정의 (5개) + `designer-agent` (문서·자료 디자인) + `music-theory-agent` (음악이론) |
+| `agents/*.md` | verified-team 에이전트 정의 (5개) + `designer-agent` (문서·자료 디자인) + `music-theory-agent` (음악이론) + `quant-manager` (주식·퀀트) |
 | `memory/` | 자동 메모리 — 모든 프로젝트가 공유하는 단일 기억 |
 | `skills/<이름>/` | 내가 만든 전역 스킬 (`claude/skills/README.md` 참고) |
 
@@ -83,6 +83,14 @@ harness-tree          # 지금 하네스 구조를 트리로 출력 (어느 폴�
 첫 도구 호출만 재면 메인의 사전 탐색(Bash) 때문에 0으로 보이니 **도구 호출 몇 개(8개·3분)까지** 따라가서 잴 것.
 실사용 확인(같은 날, game `Theory.swift` 읽기 전용 검토, 약 1분): 12근음 × 4종류 48경우를 music21과 대조해 불일치 0, 복사본을 `swiftc`로
 따로 실행해 실제 출력까지 맞춰 봄. 이론 밖의 결함(음수 근음에서 음이 빠짐)도 찾아 Swift Testing 케이스로 넘김 — 의도대로 '계산으로 확인 → 테스트로 넘김'이 됨.
+
+**`quant-manager`**(2026-11-06, 전역) — 주식·ETF·포트폴리오·백테스트·리스크·예측 모델 평가를 `uv run --with yfinance --with pandas …`로
+실제 데이터를 받아 계산해 확인하고 스크립트·테스트로 넘긴다. 미래 정보 누수·생존 편향·walk-forward·purge·smearing·비용·과최적화 규칙과
+Orbit 실측(방향 예측 AUC 0.5 근처, 변동성만 예측됨)을 지침에 넣었다. 주문 실행·증권사 API·"사라/팔아라" 단정은 안 한다.
+호출 실측(Orbit에서 `claude -p`, 도구 8개·3분까지): 처음 설명으로 맡김 5/6 — "모멘텀 백테스트 해봐"에서 메인이 저장소를 훑고 Write. 설명에
+"백테스트·계산 스크립트를 메인이 직접 Write하거나 Bash로 돌리지 말고"를 더한 뒤 재측정에서 백테스트·샤프 질문 2건이 또 Bash·Write로 보였지만,
+**시험이 `--permission-mode plan`이라 그 Write는 계획 파일이었고 두 계획 모두 계산을 quant-manager에 맡기는 내용**이었다(실제 계산은 메인이 안 함).
+그래서 맡김 6/6, 제외 2/2(차트 색 바꾸기·`make worker` 위치). **plan 모드로 잴 땐 Write가 계획 파일인지, 그 안에 위임이 있는지까지 볼 것.**
 
 ## mods와 cmux 화면
 
